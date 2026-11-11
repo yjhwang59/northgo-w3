@@ -2,6 +2,7 @@
 import { SITE, localePath, type Locale } from "../data/site";
 import { SERVICE_SLUGS, ui } from "../data/ui";
 import Logo from "./Logo.astro";
+import { version } from "../../package.json";
 
 type Props = { locale: Locale };
 const { locale } = Astro.props;
@@ -49,7 +50,7 @@ const year = new Date().getFullYear();
     </div>
   </div>
   <div class="wrap footer-bottom">
-    <span>© {year} {SITE.name}. {t.footer.rights}</span>
+    <span>© {year} {SITE.name}. {t.footer.rights} · v{version}</span>
     <span>
       <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
       ·
