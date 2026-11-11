@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import EnquiryForm from "../components/EnquiryForm.astro";
+import OfficesMap from "../components/OfficesMap.astro";
+import { pageContent } from "../data/content";
+import type { Locale } from "../data/site";
+import type { ServiceKey } from "../data/ui";
+
+type Props = { locale: Locale; preselect?: ServiceKey | null };
+const { locale, preselect = null } = Astro.props;
+const c = pageContent(locale).contact;
+---
+
+<BaseLayout locale={locale} title={c.title} description={c.description} path="/contact">
+  <section class="hero">
+    <div class="wrap">
+      <h1>{c.heroTitle}</h1>
+      <p class="lede">{c.heroLead}</p>
+    </div>
+  </section>
+  <EnquiryForm locale={locale} preselect={preselect} />
+  <OfficesMap locale={locale} />
+</BaseLayout>
+

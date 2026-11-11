@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { pageContent } from "../data/content";
+import { ui } from "../data/ui";
+import type { Locale } from "../data/site";
+
+type Props = { locale: Locale };
+const { locale } = Astro.props;
+const c = pageContent(locale).warehouse;
+const t = ui(locale);
+---
+
+<BaseLayout locale={locale} title={c.title} description={c.description} path="/services/warehouse-logistics">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">{t.nav.services}</p>
+      <h1>{c.heroTitle}</h1>
+      <p class="lede">{c.heroLead}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap prose">
+      <h2>{c.introTitle}</h2>
+      {c.intro.map((p) => <p>{p}</p>)}
+    </div>
+    <div class="wrap grid-2" style="margin-top:1.25rem;">
+      {
+        c.points.map((point) => (
+          <article class="card">
+            <h3>{point.title}</h3>
+            <p>{point.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+  <CtaBand locale={locale} title={c.ctaTitle} body={c.ctaBody} service="warehouse" />
+</BaseLayout>
+

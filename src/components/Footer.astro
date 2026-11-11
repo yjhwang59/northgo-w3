@@ -1,0 +1,59 @@
+---
+import { SITE, localePath, type Locale } from "../data/site";
+import { SERVICE_SLUGS, ui } from "../data/ui";
+import Logo from "./Logo.astro";
+
+type Props = { locale: Locale };
+const { locale } = Astro.props;
+const t = ui(locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="logo" href={localePath(locale, "/")} aria-label="Northgo home">
+        <Logo />
+      </a>
+      <p style="margin:0.75rem 0 0; max-width:28rem;">
+        {locale === "en"
+          ? "Making logistics effortless since 1988. Freight, project, warehouse, and shipping agency services."
+          : "自 1988 年以來，讓物流變得輕鬆。貨運、專案、倉儲與船務代理服務。"}
+      </p>
+    </div>
+    <div>
+      <h2>{t.footer.company}</h2>
+      <div class="footer-links">
+        <a href={localePath(locale, "/about")}>{t.nav.about}</a>
+        <a href={localePath(locale, "/contact")}>{t.nav.contact}</a>
+        <a href={localePath(locale, "/contact") + "#locations"}>{t.footer.locations}</a>
+      </div>
+    </div>
+    <div>
+      <h2>{t.footer.services}</h2>
+      <div class="footer-links">
+        <a href={localePath(locale, `/services/${SERVICE_SLUGS.freight}`)}>{t.services.freight.name}</a>
+        <a href={localePath(locale, `/services/${SERVICE_SLUGS.project}`)}>{t.services.project.name}</a>
+        <a href={localePath(locale, `/services/${SERVICE_SLUGS.warehouse}`)}>{t.services.warehouse.name}</a>
+        <a href={localePath(locale, `/services/${SERVICE_SLUGS.shipping}`)}>{t.services.shipping.name}</a>
+      </div>
+    </div>
+    <div>
+      <h2>{t.footer.legal}</h2>
+      <div class="footer-links">
+        <a href={localePath(locale, "/legal/privacy-policy")}>{t.footer.privacy}</a>
+        <a href={localePath(locale, "/legal/terms")}>{t.footer.terms}</a>
+        <a href={localePath(locale, "/legal/cookie-policy")}>{t.footer.cookie}</a>
+        <a href={localePath(locale, "/legal/disclaimer")}>{t.footer.disclaimer}</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© {year} {SITE.name}. {t.footer.rights}</span>
+    <span>
+      <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      ·
+      <a href={`tel:${SITE.phone.replace(/[^\d+]/g, "")}`}>{SITE.phone}</a>
+    </span>
+  </div>
+</footer>

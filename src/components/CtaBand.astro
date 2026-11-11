@@ -1,0 +1,28 @@
+---
+import { localePath, type Locale } from "../data/site";
+import { ui } from "../data/ui";
+
+type Props = {
+  locale: Locale;
+  title: string;
+  body: string;
+  service?: string;
+};
+
+const { locale, title, body, service } = Astro.props;
+const t = ui(locale);
+const href =
+  localePath(locale, "/contact") +
+  (service ? `?service=${encodeURIComponent(service)}` : "") +
+  "#enquiry-form";
+---
+
+<section class="section section-muted">
+  <div class="wrap" style="display:flex; flex-wrap:wrap; gap:1.25rem; align-items:end; justify-content:space-between;">
+    <div style="max-width:40rem;">
+      <h2>{title}</h2>
+      <p class="lead">{body}</p>
+    </div>
+    <a class="btn btn-solid" href={href}>{t.nav.enquire}</a>
+  </div>
+</section>

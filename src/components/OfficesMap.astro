@@ -1,0 +1,217 @@
+---
+import { OFFICES, REGION_LABELS } from "../data/offices";
+import type { Locale } from "../data/site";
+import { ui } from "../data/ui";
+
+type Props = { locale: Locale };
+const { locale } = Astro.props;
+const t = ui(locale);
+const regions = Object.keys(REGION_LABELS.en) as Array<keyof typeof REGION_LABELS.en>;
+const labels = REGION_LABELS[locale];
+---
+
+<section class="section section-muted" id="locations">
+  <div class="wrap">
+    <h2>{t.offices.heading}</h2>
+    <p class="lead">{t.offices.intro}</p>
+    <div class="office-filters" role="group" aria-label={t.offices.filterLabel} data-region-filters>
+      {
+        regions.map((key, index) => (
+          <button type="button" data-region={key} aria-pressed={index === 0 ? "true" : "false"}>
+            {labels[key]}
+          </button>
+        ))
+      }
+    </div>
+    <p data-office-summary></p>
+    <div class="offices-stage">
+      <div class="map-frame">
+        <div id="office-map" aria-label={t.offices.mapLabel}></div>
+        <p class="notice" id="map-error" hidden>{t.offices.mapError}</p>
+      </div>
+      <div>
+        <h3 style="margin:0 0 0.75rem;">{t.offices.listHeading}</h3>
+        <div class="office-list" data-office-list></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""
+/>
+<script
+  is:inline
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+  defer
+></script>
+<script is:inline set:html={`window.__NORTHGO_OFFICES__ = ${JSON.stringify({
+  offices: OFFICES,
+  locale,
+  regionLabels: labels,
+  copy: {
+    hq: t.offices.hq,
+    tel: t.offices.tel,
+    fax: t.offices.fax,
+    email: t.offices.email
+  },
+  summaryTemplate:
+    locale === "en"
+      ? "{label} · {count} offices. Select a name to zoom the map."
+      : "{label} · {count} 個辦公室。點選名稱可在地圖上定位。"
+})};`} />
+<script is:inline>
+  function bootOffices() {
+    const cfg = window.__NORTHGO_OFFICES__;
+    if (!cfg) return;
+    const { offices, locale, regionLabels, copy, summaryTemplate } = cfg;
+    const listEl = document.querySelector("[data-office-list]");
+    const summaryEl = document.querySelector("[data-office-summary]");
+    const filters = document.querySelector("[data-region-filters]");
+    const mapError = document.getElementById("map-error");
+    if (!listEl || !summaryEl || !filters) return;
+
+    let region = "world";
+    let selectedId = offices.find((o) => o.hq)?.id || offices[0].id;
+    let map = null;
+    let markers = new Map();
+
+    function visible() {
+      if (region === "world") return offices;
+      return offices.filter((o) => o.regions.includes(region));
+    }
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[ch]);
+    }
+
+    function renderList() {
+      const items = visible();
+      const label = regionLabels[region] || region;
+      summaryEl.textContent = summaryTemplate
+        .replace("{label}", label)
+        .replace("{count}", String(items.length));
+      listEl.innerHTML = items
+        .map((office) => {
+          const name = office.name[locale] || office.name.en;
+          const area = office.area[locale] || office.area.en;
+          const address = office.address[locale] || office.address.en;
+          const fax = office.fax
+            ? `<div><dt>${esc(copy.fax)}</dt><dd>${esc(office.fax)}</dd></div>`
+            : "";
+          const telHref = office.tel.replace(/[^\d+]/g, "");
+          const active = office.id === selectedId ? " is-active" : "";
+          const hq = office.hq ? `<span class="tag">${esc(copy.hq)}</span>` : "";
+          return `<article class="office-card${active}" data-id="${esc(office.id)}">
+            <div style="display:flex;gap:0.5rem;align-items:center;justify-content:space-between;">
+              <h3><button type="button">${esc(name)}</button></h3>
+              ${hq}
+            </div>
+            <p class="meta">${esc(area)} · <span lang="en">${esc(office.name.en)}</span></p>
+            <p class="addr">${esc(address)}</p>
+            <dl>
+              <div><dt>${esc(copy.tel)}</dt><dd><a href="tel:${telHref}">${esc(office.tel)}</a></dd></div>
+              ${fax}
+              <div><dt>${esc(copy.email)}</dt><dd><a href="mailto:${esc(office.email)}">${esc(office.email)}</a></dd></div>
+            </dl>
+          </article>`;
+        })
+        .join("");
+
+      listEl.querySelectorAll(".office-card").forEach((card) => {
+        card.addEventListener("click", (event) => {
+          if (event.target.closest("a")) return;
+          selectOffice(card.getAttribute("data-id"));
+        });
+      });
+    }
+
+    function selectOffice(id) {
+      selectedId = id;
+      renderList();
+      const office = offices.find((o) => o.id === id);
+      if (office && map) {
+        map.flyTo([office.lat, office.lng], 12, { duration: 0.8 });
+        const marker = markers.get(id);
+        if (marker) marker.openPopup();
+      }
+    }
+
+    function initMap() {
+      if (!window.L) {
+        mapError.hidden = false;
+        return;
+      }
+      map = window.L.map("office-map", { scrollWheelZoom: false }).setView([20, 130], 2);
+      window.L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution:
+            "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors",
+          maxZoom: 16
+        }
+      ).addTo(map);
+
+      offices.forEach((office) => {
+        const name = office.name[locale] || office.name.en;
+        const marker = window.L.circleMarker([office.lat, office.lng], {
+          radius: office.hq ? 9 : 7,
+          color: "#087a86",
+          fillColor: office.hq ? "#00bfbf" : "#0a1b33",
+          fillOpacity: 0.9,
+          weight: 2
+        })
+          .bindPopup(`<strong>${name}</strong><br>${office.tel}`)
+          .on("click", () => selectOffice(office.id))
+          .addTo(map);
+        markers.set(office.id, marker);
+      });
+    }
+
+    filters.querySelectorAll("[data-region]").forEach((button) => {
+      button.addEventListener("click", () => {
+        region = button.getAttribute("data-region");
+        filters.querySelectorAll("[data-region]").forEach((b) => {
+          b.setAttribute("aria-pressed", b === button ? "true" : "false");
+        });
+        renderList();
+        if (map) {
+          const items = visible();
+          if (items.length === 1) {
+            map.flyTo([items[0].lat, items[0].lng], 8);
+          } else if (items.length) {
+            const bounds = window.L.latLngBounds(items.map((o) => [o.lat, o.lng]));
+            map.fitBounds(bounds.pad(0.35));
+          }
+        }
+      });
+    });
+
+    renderList();
+    initMap();
+  }
+
+  function startOffices() {
+    if (window.__NORTHGO_OFFICES_BOOTED__) return;
+    window.__NORTHGO_OFFICES_BOOTED__ = true;
+    bootOffices();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => setTimeout(startOffices, 100));
+  } else {
+    setTimeout(startOffices, 100);
+  }
+  window.addEventListener("load", () => setTimeout(startOffices, 0));
+</script>

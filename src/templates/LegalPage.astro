@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { LEGAL, type LegalKey } from "../data/legal";
+import { pageContent } from "../data/content";
+import { ui } from "../data/ui";
+import type { Locale } from "../data/site";
+
+type Props = { locale: Locale; kind: LegalKey; path: string };
+const { locale, kind, path } = Astro.props;
+const meta = pageContent(locale).legal[kind];
+const doc = LEGAL[kind];
+const t = ui(locale);
+---
+
+<BaseLayout locale={locale} title={meta.title} description={meta.description} path={path}>
+  <section class="section">
+    <div class="wrap prose">
+      <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-0.03em;">{doc.heading}</h1>
+      <p><em>{doc.updated}</em></p>
+      {locale === "zh-tw" && <p class="notice">{t.legalNote}</p>}
+      {
+        doc.sections.map((section) => (
+          <>
+            <h2>{section.title}</h2>
+            <p>{section.body}</p>
+          </>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+

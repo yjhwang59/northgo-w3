@@ -1,0 +1,99 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CtaBand from "../../components/CtaBand.astro";
+import { SITE, localePath } from "../../data/site";
+import { pageContent } from "../../data/content";
+import { SERVICE_SLUGS, ui } from "../../data/ui";
+
+const locale = "zh-tw" as const;
+const c = pageContent(locale).home;
+const t = ui(locale);
+const services = (Object.keys(SERVICE_SLUGS) as Array<keyof typeof SERVICE_SLUGS>).map((key) => ({
+  key,
+  ...t.services[key],
+  href: localePath(locale, `/services/${SERVICE_SLUGS[key]}`)
+}));
+---
+
+<BaseLayout locale={locale} title={c.title} description={c.description} path="/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Northgo · 自 {SITE.founded}</p>
+      <h1>
+        讓物流變得 <em>輕鬆。</em>
+      </h1>
+      <p class="lede">{c.heroLead}</p>
+      <div class="hero-actions">
+        <a class="btn btn-light" href={localePath(locale, "/contact") + "#enquiry-form"}>{t.nav.enquire}</a>
+        <a class="btn btn-light" href="#services">{t.nav.learnMore}</a>
+      </div>
+      <dl class="trust">
+        <div>
+          <dt>{t.trust.years}</dt>
+          <dd>{new Date().getFullYear() - SITE.founded}+</dd>
+        </div>
+        <div>
+          <dt>{t.trust.offices}</dt>
+          <dd>{SITE.officeCount}</dd>
+        </div>
+        <div>
+          <dt>{t.trust.support}</dt>
+          <dd>24/7</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section-cyan">
+    <div class="wrap prose">
+      <p style="color:var(--navy-2);letter-spacing:0.08em;font-weight:700;font-size:0.9rem;margin:0 0 0.5rem;">
+        {c.purposeEyebrow}
+      </p>
+      <h2>{c.purposeTitle}</h2>
+      <p class="lead">{c.purposeBody}</p>
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="wrap">
+      <h2>{c.servicesTitle}</h2>
+      <p class="lead">{c.servicesLead}</p>
+      <div class="grid-4">
+        {
+          services.map((service) => (
+            <article class="card">
+              <h3>{service.name}</h3>
+              <p>{service.blurb}</p>
+              <a class="more" href={service.href}>
+                {t.nav.learnMore} →
+              </a>
+            </article>
+          ))
+        }
+      </div>
+      <div class="certs" aria-label="認證">
+        {SITE.certifications.map((cert) => <span class="cert-pill">{cert}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-muted" id="why-northgo">
+    <div class="wrap">
+      <h2>{c.whyTitle}</h2>
+      <p class="lead">{c.whyLead}</p>
+      <div class="grid-2">
+        {
+          c.whyPoints.map((point) => (
+            <article class="card">
+              <h3>{point.title}</h3>
+              <p>{point.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand locale={locale} title={c.ctaTitle} body={c.ctaBody} />
+</BaseLayout>
+

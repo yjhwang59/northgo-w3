@@ -1,0 +1,85 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Seo from "../components/Seo.astro";
+import { SITE, withBase, type Locale } from "../data/site";
+import { OFFICES } from "../data/offices";
+import { ui } from "../data/ui";
+import "../styles/global.css";
+
+type Props = {
+  locale: Locale;
+  title: string;
+  description: string;
+  path?: string;
+};
+
+const { locale, title, description, path = "/" } = Astro.props;
+const t = ui(locale);
+const origin = new URL(SITE.url).origin;
+const assetUrl = (path: string) => new URL(withBase(path), origin).toString();
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE.name,
+  url: SITE.url,
+  email: SITE.email,
+  telephone: SITE.phone,
+  foundingDate: String(SITE.founded),
+  logo: assetUrl("/logo.svg"),
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "7F., No. 10, Sec. 3, Minsheng E. Rd.",
+    addressLocality: "Taipei City",
+    postalCode: "104511",
+    addressCountry: "TW"
+  },
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      telephone: SITE.phone,
+      contactType: "customer service",
+      email: SITE.email,
+      areaServed: ["TW", "JP", "VN", "US"]
+    }
+  ],
+  location: OFFICES.map((office) => ({
+    "@type": "Place",
+    name: office.name.en,
+    telephone: office.tel,
+    email: office.email,
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: office.lat,
+      longitude: office.lng
+    },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: office.address.en
+    }
+  }))
+};
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" href={withBase("/favicon.png")} type="image/png" sizes="32x32" />
+    <link rel="icon" href={withBase("/favicon.ico")} sizes="any" />
+    <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
+    <Seo locale={locale} title={title} description={description} path={path} />
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t.skip}</a>
+    <Header locale={locale} path={path} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

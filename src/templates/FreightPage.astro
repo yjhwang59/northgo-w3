@@ -1,0 +1,51 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { pageContent } from "../data/content";
+import { ui } from "../data/ui";
+import type { Locale } from "../data/site";
+
+type Props = { locale: Locale };
+const { locale } = Astro.props;
+const c = pageContent(locale).freight;
+const t = ui(locale);
+---
+
+<BaseLayout locale={locale} title={c.title} description={c.description} path="/services/freight-logistics">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">{t.nav.services}</p>
+      <h1>{c.heroTitle}</h1>
+      <p class="lede">{c.heroLead}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap prose">
+      <h2>{c.introTitle}</h2>
+      {c.intro.map((p) => <p>{p}</p>)}
+      <nav class="certs" aria-label="Sections">
+        {
+          c.sections.map((section) => (
+            <a class="cert-pill" href={`#${section.id}`}>
+              {section.title}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </section>
+  <section class="section section-muted">
+    <div class="wrap stack">
+      {
+        c.sections.map((section) => (
+          <article class="card" id={section.id}>
+            <h2 style="margin:0;font-size:1.35rem;">{section.title}</h2>
+            <p>{section.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+  <CtaBand locale={locale} title={c.ctaTitle} body={c.ctaBody} service="freight" />
+</BaseLayout>
+

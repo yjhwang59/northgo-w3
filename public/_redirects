@@ -1,0 +1,8 @@
+# Preserve printed URLs; send unfinished locales and News to safe destinations.
+/news / 301
+/zh-tw/news /zh-tw 301
+/ja / 302
+/ja/* /:splat 302
+/vi / 302
+/vi/* /:splat 302
+/zh-tw/ /zh-tw 301

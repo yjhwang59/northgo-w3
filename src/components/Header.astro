@@ -1,0 +1,82 @@
+---
+import { localePath, type Locale } from "../data/site";
+import { SERVICE_SLUGS, ui } from "../data/ui";
+import Logo from "./Logo.astro";
+
+type Props = {
+  locale: Locale;
+  path?: string;
+};
+
+const { locale, path = "/" } = Astro.props;
+const t = ui(locale);
+const home = localePath(locale, "/");
+const about = localePath(locale, "/about");
+const contact = localePath(locale, "/contact");
+const enquire = localePath(locale, "/contact") + "#enquiry-form";
+
+const otherLocale: Locale = locale === "en" ? "zh-tw" : "en";
+const otherHref = localePath(otherLocale, path);
+---
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href={home} aria-label="Northgo home">
+      <Logo />
+    </a>
+    <nav class="nav-desktop" aria-label="Primary">
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.freight}`)}>{t.services.freight.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.project}`)}>{t.services.project.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.warehouse}`)}>{t.services.warehouse.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.shipping}`)}>{t.services.shipping.name}</a>
+      <a href={about}>{t.nav.about}</a>
+      <a href={contact}>{t.nav.contact}</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="lang-switch" role="group" aria-label={t.nav.language}>
+        <a href={localePath("en", path)} aria-current={locale === "en" ? "true" : undefined}>EN</a>
+        <a href={localePath("zh-tw", path)} aria-current={locale === "zh-tw" ? "true" : undefined}>繁中</a>
+      </div>
+      <a class="btn btn-solid" href={enquire}>{t.nav.enquire}</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" data-menu-toggle>
+        <span aria-hidden="true"></span>
+        <span class="visually-hidden">{t.nav.menu}</span>
+      </button>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="nav-mobile" id="mobile-nav" aria-label="Mobile">
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.freight}`)}>{t.services.freight.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.project}`)}>{t.services.project.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.warehouse}`)}>{t.services.warehouse.name}</a>
+      <a href={localePath(locale, `/services/${SERVICE_SLUGS.shipping}`)}>{t.services.shipping.name}</a>
+      <a href={about}>{t.nav.about}</a>
+      <a href={contact}>{t.nav.contact}</a>
+      <a href={enquire}>{t.nav.enquire}</a>
+      <a href={otherHref}>{otherLocale === "en" ? "English" : "繁體中文"}</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector("[data-menu-toggle]");
+  const panel = document.getElementById("mobile-nav");
+  toggle?.addEventListener("click", () => {
+    const open = panel?.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+</script>

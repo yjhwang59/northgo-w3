@@ -1,0 +1,46 @@
+---
+import { SITE, withBase, type Locale, alternatePaths } from "../data/site";
+
+type Props = {
+  locale: Locale;
+  title: string;
+  description: string;
+  path?: string;
+  type?: "website" | "article";
+};
+
+const {
+  locale,
+  title,
+  description,
+  path = "/",
+  type = "website"
+} = Astro.props;
+
+const origin = new URL(SITE.url).origin;
+const absolute = (path: string) => new URL(path, origin).toString();
+const alternates = alternatePaths(path);
+const canonicalPath = alternates[locale];
+const canonical = absolute(canonicalPath);
+const ogImage = absolute(withBase("/og-default.svg"));
+const ogLocale = locale === "zh-tw" ? "zh_TW" : "en_US";
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<link rel="alternate" hreflang="en" href={absolute(alternates.en)} />
+<link rel="alternate" hreflang="zh-TW" href={absolute(alternates["zh-tw"])} />
+<link rel="alternate" hreflang="x-default" href={absolute(alternates.en)} />
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={ogLocale} />
+<meta property="og:locale:alternate" content={locale === "en" ? "zh_TW" : "en_US"} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />

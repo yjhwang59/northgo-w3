@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { pageContent } from "../data/content";
+import type { Locale } from "../data/site";
+
+type Props = { locale: Locale };
+const { locale } = Astro.props;
+const c = pageContent(locale).about;
+---
+
+<BaseLayout locale={locale} title={c.title} description={c.description} path="/about">
+  <section class="hero">
+    <div class="wrap">
+      <h1>{c.heroTitle}</h1>
+      <p class="lede">{c.heroLead}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid-2">
+      <article class="card">
+        <h2 style="font-size:1.3rem;margin:0;">{c.visionTitle}</h2>
+        <p>{c.visionBody}</p>
+      </article>
+      <article class="card">
+        <h2 style="font-size:1.3rem;margin:0;">{c.missionTitle}</h2>
+        <p>{c.missionBody}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section-muted">
+    <div class="wrap">
+      <h2>{c.valuesTitle}</h2>
+      <p class="lead">{c.valuesIntro}</p>
+      <div class="grid-2">
+        {
+          c.values.map((value) => (
+            <article class="card">
+              <h3>{value.title}</h3>
+              <p>{value.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap prose">
+      <h2>{c.storyTitle}</h2>
+      {c.story.map((p) => <p>{p}</p>)}
+      <h3>{c.changedTitle}</h3>
+      <p>{c.changedBody}</p>
+      <h3>{c.sameTitle}</h3>
+      <p>{c.sameBody}</p>
+      <h3>{c.closingTitle}</h3>
+      <p>{c.closingBody}</p>
+    </div>
+  </section>
+
+  <CtaBand
+    locale={locale}
+    title={locale === "en" ? "Work with Northgo" : "與 Northgo 合作"}
+    body={locale === "en" ? "Send an enquiry and our team will follow up." : "送出詢價，我們的團隊會與您聯繫。"}
+  />
+</BaseLayout>
+
