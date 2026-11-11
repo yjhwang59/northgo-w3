@@ -8,6 +8,7 @@ import { SERVICE_SLUGS, ui } from "../data/ui";
 const locale = "en" as const;
 const c = pageContent(locale).home;
 const t = ui(locale);
+const heroImage = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/images/northgo-logistics-hero.jpg`;
 const services = (Object.keys(SERVICE_SLUGS) as Array<keyof typeof SERVICE_SLUGS>).map((key) => ({
   key,
   ...t.services[key],
@@ -17,16 +18,27 @@ const services = (Object.keys(SERVICE_SLUGS) as Array<keyof typeof SERVICE_SLUGS
 
 <BaseLayout locale={locale} title={c.title} description={c.description} path="/">
   <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow">Northgo · since {SITE.founded}</p>
-      <h1>
-        Making logistics <em>effortless.</em>
-      </h1>
-      <p class="lede">{c.heroLead}</p>
-      <div class="hero-actions">
-        <a class="btn btn-light" href={localePath(locale, "/contact") + "#enquiry-form"}>{t.nav.enquire}</a>
-        <a class="btn btn-light" href="#services">{t.nav.learnMore}</a>
+    <div class="wrap hero-grid">
+      <div class="hero-content">
+        <p class="eyebrow">Northgo · since {SITE.founded}</p>
+        <h1>
+          Making logistics <em>effortless.</em>
+        </h1>
+        <p class="lede">{c.heroLead}</p>
+        <div class="hero-actions">
+          <a class="btn btn-light" href={localePath(locale, "/contact") + "#enquiry-form"}>{t.nav.enquire}</a>
+          <a class="btn btn-light" href="#services">{t.nav.learnMore}</a>
+        </div>
       </div>
+      <figure class="hero-visual">
+        <img
+          src={heroImage}
+          alt="Container ship sailing beside an international cargo port at blue hour"
+          width="1024"
+          height="576"
+          fetchpriority="high"
+        />
+      </figure>
       <dl class="trust">
         <div>
           <dt>{t.trust.years}</dt>

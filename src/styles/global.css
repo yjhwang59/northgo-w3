@@ -267,6 +267,45 @@ a:hover {
   padding: clamp(2.5rem, 6vw, 5rem) 0;
 }
 
+.hero-grid {
+  display: grid;
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+  row-gap: 2rem;
+  align-items: center;
+}
+
+.hero-content {
+  min-width: 0;
+}
+
+.hero-visual {
+  position: relative;
+  margin: 0;
+  border: 1px solid rgba(122, 240, 240, 0.35);
+  border-radius: clamp(18px, 3vw, 28px);
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
+  isolation: isolate;
+}
+
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 229, 229, 0.12), transparent 45%);
+  pointer-events: none;
+}
+
+.hero-visual img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.hero-grid > .trust {
+  margin-top: 0;
+}
+
 .hero .eyebrow {
   margin: 0 0 0.75rem;
   letter-spacing: 0.16em;
@@ -730,6 +769,26 @@ textarea {
 @media (min-width: 900px) {
   .logo svg {
     height: 2.05rem;
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    grid-template-areas:
+      "content visual"
+      "trust visual";
+    row-gap: 1.75rem;
+  }
+
+  .hero-content {
+    grid-area: content;
+  }
+
+  .hero-visual {
+    grid-area: visual;
+  }
+
+  .hero-grid > .trust {
+    grid-area: trust;
   }
 
   .nav-desktop {
